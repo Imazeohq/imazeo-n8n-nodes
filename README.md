@@ -78,15 +78,39 @@ API error envelopes are mapped to n8n `NodeApiError` with code, request ID, and 
 
 ## Publishing / verification
 
-1. Commit and push `main` to `https://github.com/Imazeohq/imazeo-n8n-nodes.git`
-2. Make the GitHub repo **public** (required for community-node verification)
-3. On npmjs.com, add a Trusted Publisher (OIDC) for workflow `publish.yml`, or set repo secret `NPM_TOKEN`
-4. Run `npm run release` locally (tags/pushes) **or** push a SemVer tag `*.*.*` to trigger Publish with provenance
-5. Confirm npm shows provenance for the published version
-6. Run `npx @n8n/scan-community-package n8n-nodes-imazeo` against the published package
-7. Submit via the [n8n Creator Portal / verification guidelines](https://docs.n8n.io/integrations/creating-nodes/build/reference/verification-guidelines/)
+Same idea as Java/NuGet SDK repos: **tag `v*` (or Actions → Publish → Run workflow) → GitHub Action publishes**.
 
-Do not publish until sample workflows have been exercised against a real project API key.
+### One-time setup
+
+1. Confirm GitHub repo is **public**: [Imazeohq/imazeo-n8n-nodes](https://github.com/Imazeohq/imazeo-n8n-nodes)
+2. Create / claim the npm package name `n8n-nodes-imazeo` under your npm user or org (first publish creates it)
+3. Prefer **Trusted Publisher (OIDC)** — no long-lived token:
+   - npmjs.com → package (or org) → **Trusted Publishers** → **GitHub Actions**
+   - Owner: `Imazeohq` · Repo: `imazeo-n8n-nodes` · Workflow: `publish.yml`
+4. Fallback: create an npm Granular Access Token with publish rights, add GitHub secret `NPM_TOKEN`
+5. Ensure local git can create GitHub releases (`gh auth login` or a `GITHUB_TOKEN`/`GH_TOKEN` for `release-it`)
+
+### Each release
+
+```bash
+git checkout main
+git pull
+npm ci
+npm run lint && npm test && npm run build
+npm run release
+```
+
+`npm run release` (local) bumps version, updates changelog, commits, tags `vX.Y.Z`, pushes, and opens a GitHub Release. It does **not** publish to npm.
+
+The **Publish** workflow then runs lint + build + `npm publish` with **provenance**.
+
+### After npm is live
+
+1. Confirm [npmjs.com/package/n8n-nodes-imazeo](https://www.npmjs.com/package/n8n-nodes-imazeo) shows Provenance
+2. `npx @n8n/scan-community-package n8n-nodes-imazeo`
+3. Submit via the [n8n Creator Portal](https://docs.n8n.io/integrations/creating-nodes/build/reference/verification-guidelines/)
+
+Do not release until sample workflows have been exercised against a real project API key.
 
 ## License
 

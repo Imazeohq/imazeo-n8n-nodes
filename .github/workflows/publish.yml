@@ -1,30 +1,38 @@
-# Publishes this n8n community node package to npm on every version tag push.
+# Publishes n8n-nodes-imazeo to npm with provenance (required for n8n verification).
 #
-# Starting May 1 2026, n8n requires all community nodes to be published via
-# GitHub Actions with npm provenance statements. This workflow satisfies that
-# requirement. Provenance lets anyone cryptographically verify that a package
-# was built by this exact workflow, from this exact repository and commit.
+# Pattern matches other Imazeo SDK publish workflows:
+# - tag push (v*) and optional workflow_dispatch
 #
-# Prerequisites:
-# - @n8n/node-cli >= 0.23.0
-# - npm Trusted Publisher (OIDC) for this repo/workflow, or NPM_TOKEN secret
+# Flow:
+# 1. Locally: npm run release  → bumps version, commits, tags vX.Y.Z, pushes
+# 2. This workflow: lint + build + npm publish --provenance
 #
-# Release locally with: npm run release
-# That tags and pushes, which triggers this workflow.
+# One-time auth (pick one):
+# A) npm Trusted Publisher (OIDC, preferred — no long-lived secret):
+#    npmjs.com → Access → Trusted Publishers → GitHub Actions
+#      Repository owner: Imazeohq
+#      Repository name:  imazeo-n8n-nodes
+#      Workflow filename: publish.yml
+# B) Fallback: repo secret NPM_TOKEN (Granular Access Token, read+write publish)
+#
+# @n8n/node-cli >= 0.23.0 required for provenance in CI.
 
 name: Publish
 
 on:
+  workflow_dispatch:
   push:
     tags:
-      - '*.*.*'
+      - 'v*'
 
 jobs:
   publish:
     name: Publish to npm
     runs-on: ubuntu-latest
+    timeout-minutes: 20
 
     permissions:
+      # OIDC for npm provenance + Trusted Publisher
       id-token: write
       contents: read
 
@@ -36,13 +44,18 @@ jobs:
         with:
           node-version: 'lts/*'
           cache: 'npm'
+          registry-url: 'https://registry.npmjs.org'
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Release
+      - name: Publish
+        # In GITHUB_ACTIONS, `npm run release` → lint + build + npm publish with provenance
         run: |
-          [ -n "$NPM_TOKEN" ] && npm config set //registry.npmjs.org/:_authToken "$NPM_TOKEN"
+          if [ -n "$NPM_TOKEN" ]; then
+            npm config set //registry.npmjs.org/:_authToken "$NPM_TOKEN"
+          fi
           npm run release
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
