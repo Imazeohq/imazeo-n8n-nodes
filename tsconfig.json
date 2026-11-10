@@ -16,6 +16,7 @@
 		"esModuleInterop": true,
 		"resolveJsonModule": true,
 		"incremental": true,
+		"tsBuildInfoFile": "./node_modules/.cache/imazeo-n8n.tsbuildinfo",
 		"declaration": true,
 		"sourceMap": true,
 		"skipLibCheck": true,

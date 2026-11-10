@@ -1,115 +1,67 @@
 # @imazeo/n8n-nodes-imazeo
 
-Community node for [Imazeo](https://imazeo.com) — image uploads and transforms, PDF tools, QR codes, and barcodes against the public Imazeo API (`https://api.imazeo.com`).
-
-Built with the official [`@n8n/node-cli`](https://docs.n8n.io/integrations/creating-nodes/build/n8n-node/) toolchain for verified community-node packaging. MIT licensed. **No runtime npm dependencies** (API calls use n8n helpers only; `@imazeo/sdk` is a contract reference, not a dependency).
+n8n community node for [Imazeo](https://imazeo.com) — upload and transform images, run PDF tools, and generate QR codes and barcodes via the Imazeo API (`https://api.imazeo.com`).
 
 ## Install
 
-### Community nodes (self-hosted)
-
-1. Settings → Community Nodes → Install
+1. In n8n: **Settings → Community Nodes → Install**
 2. Enter `@imazeo/n8n-nodes-imazeo`
 3. Restart n8n if prompted
 
-### Manual / local development
-
-```bash
-npm install
-npm run build
-npm run dev
-```
-
-`npm run dev` loads the node in a local n8n instance (from n8n 3.0 this may use Docker/Podman; use `n8n-node dev --external-n8n` if you run n8n yourself with `N8N_DEV_RELOAD=true`).
+Requires a self-hosted n8n instance with community nodes enabled. Use this node in **server-side** workflows only — never put a project API key in a browser workflow.
 
 ## Credentials
 
-Create **Imazeo API** credentials:
+Create **Imazeo API** credentials in n8n:
 
 | Field | Notes |
 | --- | --- |
-| **API Key** | Project key from the Customer portal (`imz_…`). Sent as `X-API-Key` only — never with `Authorization`. Server-side workflows only. |
-| **API Origin** | Default `https://api.imazeo.com` (origin only; no `/v1` suffix). |
-| **Project ID** | Optional. If empty, resolved via `GET /v1/api-key/context`. |
+| **API Key** | Project API key from the [Imazeo Customer portal](https://app.imazeo.com). Sent as `X-API-Key` only (do not also send `Authorization`). |
+| **API Origin** | Default `https://api.imazeo.com` (origin only; do not append `/v1`). |
+| **Project ID** | Optional. If empty, the node resolves it with `GET /v1/api-key/context`. |
 
 ## Resources and operations
-
-Aligned with public API surface documented for `@imazeo/sdk@1.0.0`:
 
 | Resource | Operations |
 | --- | --- |
 | **Image** | Upload, Get, Get Many, Download, Delete |
-| **Transform** | Create (image ID or public URL), Get, Get Many, Download, Delete |
-| **QR Code** | Generate (PNG / SVG) |
-| **Barcode** | Generate (code128, code39, ean13, ean8, upca, itf14) |
+| **Transform** | Create (owned image ID or public URL), Get, Get Many, Download, Delete |
+| **QR Code** | Generate (PNG or SVG) |
+| **Barcode** | Generate (`code128`, `code39`, `ean13`, `ean8`, `upca`, `itf14`) |
 | **PDF** | Info, Render, Merge, Extract |
 
-Binary inputs use n8n binary properties. Binary responses (transforms, downloads, QR/barcode, PDF bytes) are written to a configurable binary property. Multi-page PDF renders that return JSON with base64 pages are expanded into one item per page.
+Binary inputs and outputs use n8n binary properties. Multi-page PDF renders that return JSON with base64 pages are expanded into one item per page.
 
 ## Sample workflows
 
-Importable JSON under [`workflows/`](./workflows/):
+Importable examples in [`workflows/`](./workflows/):
 
-1. [`01-qr-code.json`](./workflows/01-qr-code.json) — generate a PNG QR code
-2. [`02-transform-url.json`](./workflows/02-transform-url.json) — transform a public image URL to WebP
-3. [`03-upload-and-barcode.json`](./workflows/03-upload-and-barcode.json) — upload an image, then barcode the image ID
+1. [`01-qr-code.json`](./workflows/01-qr-code.json) — generate a PNG QR code  
+2. [`02-transform-url.json`](./workflows/02-transform-url.json) — transform a public image URL to WebP  
+3. [`03-upload-and-barcode.json`](./workflows/03-upload-and-barcode.json) — upload an image, then barcode the image ID  
 
-After import, attach **Imazeo API** credentials on each Imazeo node before running.
-
-## Scripts
-
-| Script | Purpose |
-| --- | --- |
-| `npm run build` | Compile TypeScript and assets |
-| `npm run lint` | n8n community lint rules |
-| `npm test` | Unit tests for helpers |
-| `npm run dev` | Live-reload n8n with this node |
-| `npm run release` | Version, tag, and publish (CI/OIDC) |
+After import, attach your **Imazeo API** credentials on each Imazeo node.
 
 ## Errors and rate limits
 
-API error envelopes are mapped to n8n `NodeApiError` with code, request ID, and hints for `401` / `403` / `429`. There is **no automatic retry** on mutations (matches Imazeo SDK guidance). Honor `Retry-After` manually when rate limited.
+API failures surface in n8n with the Imazeo error message when available, plus hints for common cases (`401`, `403`, `429`). The node does not auto-retry mutations. If you hit a rate limit, wait and retry; honor `Retry-After` when the API returns it.
 
-## Repository
+## Documentation
 
-- GitHub: [Imazeohq/imazeo-n8n-nodes](https://github.com/Imazeohq/imazeo-n8n-nodes)
-- npm package: [`@imazeo/n8n-nodes-imazeo`](https://www.npmjs.com/package/@imazeo/n8n-nodes-imazeo) (scoped under the `imazeo` npm org)
-- Node / credential icons: official Imazeo mark from the shared brand favicon master (`brand/assets/favicon/imazeo-icon-master.png`)
+- Product / API docs: [https://imazeo.com/docs/](https://imazeo.com/docs/)
+- Authentication: [https://imazeo.com/docs/authentication/](https://imazeo.com/docs/authentication/)
+- Source: [github.com/Imazeohq/imazeo-n8n-nodes](https://github.com/Imazeohq/imazeo-n8n-nodes)
+- npm: [@imazeo/n8n-nodes-imazeo](https://www.npmjs.com/package/@imazeo/n8n-nodes-imazeo)
 
-## Publishing / verification
-
-Same idea as Java/NuGet SDK repos: **tag `v*` (or Actions → Publish → Run workflow) → GitHub Action publishes**.
-
-### One-time setup
-
-1. Confirm GitHub repo is **public**: [Imazeohq/imazeo-n8n-nodes](https://github.com/Imazeohq/imazeo-n8n-nodes)
-2. First publish once under the **`imazeo`** npm org (`npm publish --access public`) so the package page exists
-3. On that package → **Settings** → **Trusted Publisher** → **GitHub Actions**:
-   - Owner: `Imazeohq` · Repo: `imazeo-n8n-nodes` · Workflow: `publish.yml`
-4. Fallback only if needed: npm Granular Access Token + GitHub secret `NPM_TOKEN`
-5. Ensure local git can create GitHub releases (`gh auth login` or a `GITHUB_TOKEN`/`GH_TOKEN` for `release-it`)
-
-### Each release
+## Development
 
 ```bash
-git checkout main
-git pull
-npm ci
-npm run lint && npm test && npm run build
-npm run release
+npm install
+npm run build
+npm run lint
+npm test
+npm run dev
 ```
-
-`npm run release` (local) bumps version, updates changelog, commits, tags `vX.Y.Z`, pushes, and opens a GitHub Release. It does **not** publish to npm.
-
-The **Publish** workflow then runs lint + build + `npm publish` with **provenance**.
-
-### After npm is live
-
-1. Confirm [npmjs.com/package/@imazeo/n8n-nodes-imazeo](https://www.npmjs.com/package/@imazeo/n8n-nodes-imazeo) shows Provenance
-2. `npx @n8n/scan-community-package @imazeo/n8n-nodes-imazeo`
-3. Submit via the [n8n Creator Portal](https://docs.n8n.io/integrations/creating-nodes/build/reference/verification-guidelines/)
-
-Do not release until sample workflows have been exercised against a real project API key.
 
 ## License
 
