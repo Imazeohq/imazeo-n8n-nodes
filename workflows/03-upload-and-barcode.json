@@ -1,0 +1,79 @@
+{
+	"name": "Imazeo — Upload Image and Generate Barcode",
+	"nodes": [
+		{
+			"parameters": {},
+			"id": "start-3",
+			"name": "When clicking ‘Execute workflow’",
+			"type": "n8n-nodes-base.manualTrigger",
+			"typeVersion": 1,
+			"position": [0, 0]
+		},
+		{
+			"parameters": {
+				"url": "https://picsum.photos/640",
+				"options": {
+					"response": {
+						"response": {
+							"responseFormat": "file",
+							"outputPropertyName": "data"
+						}
+					}
+				}
+			},
+			"id": "http-1",
+			"name": "Download sample image",
+			"type": "n8n-nodes-base.httpRequest",
+			"typeVersion": 4.2,
+			"position": [240, -80]
+		},
+		{
+			"parameters": {
+				"resource": "image",
+				"operation": "upload",
+				"binaryPropertyName": "data"
+			},
+			"id": "imazeo-upload-1",
+			"name": "Upload Image",
+			"type": "n8n-nodes-imazeo.imazeo",
+			"typeVersion": 1,
+			"position": [480, -80]
+		},
+		{
+			"parameters": {
+				"resource": "barcode",
+				"operation": "generate",
+				"content": "={{$json._id}}",
+				"barcodeType": "code128",
+				"outputFormat": "png",
+				"codeOptions": {
+					"includeText": true,
+					"scale": 2,
+					"height": 12
+				}
+			},
+			"id": "imazeo-barcode-1",
+			"name": "Barcode from Image ID",
+			"type": "n8n-nodes-imazeo.imazeo",
+			"typeVersion": 1,
+			"position": [720, -80]
+		}
+	],
+	"connections": {
+		"When clicking ‘Execute workflow’": {
+			"main": [[{ "node": "Download sample image", "type": "main", "index": 0 }]]
+		},
+		"Download sample image": {
+			"main": [[{ "node": "Upload Image", "type": "main", "index": 0 }]]
+		},
+		"Upload Image": {
+			"main": [[{ "node": "Barcode from Image ID", "type": "main", "index": 0 }]]
+		}
+	},
+	"active": false,
+	"settings": { "executionOrder": "v1" },
+	"meta": {
+		"templateCredsSetupCompleted": false,
+		"description": "Upload a binary image, then encode the returned image ID as a Code 128 barcode. Attach Imazeo API credentials after import."
+	}
+}

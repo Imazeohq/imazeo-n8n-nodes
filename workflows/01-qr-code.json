@@ -1,0 +1,42 @@
+{
+	"name": "Imazeo — Generate QR Code",
+	"nodes": [
+		{
+			"parameters": {},
+			"id": "start-1",
+			"name": "When clicking ‘Execute workflow’",
+			"type": "n8n-nodes-base.manualTrigger",
+			"typeVersion": 1,
+			"position": [0, 0]
+		},
+		{
+			"parameters": {
+				"resource": "qr",
+				"operation": "generate",
+				"content": "https://imazeo.com",
+				"outputFormat": "png",
+				"codeOptions": {
+					"size": 256,
+					"margin": 2,
+					"errorCorrection": "M"
+				}
+			},
+			"id": "imazeo-qr-1",
+			"name": "Imazeo",
+			"type": "n8n-nodes-imazeo.imazeo",
+			"typeVersion": 1,
+			"position": [280, 0]
+		}
+	],
+	"connections": {
+		"When clicking ‘Execute workflow’": {
+			"main": [[{ "node": "Imazeo", "type": "main", "index": 0 }]]
+		}
+	},
+	"active": false,
+	"settings": { "executionOrder": "v1" },
+	"meta": {
+		"templateCredsSetupCompleted": false,
+		"description": "Generate a PNG QR code with the public Imazeo tools API. Attach Imazeo API credentials after import."
+	}
+}

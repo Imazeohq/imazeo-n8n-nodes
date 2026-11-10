@@ -1,0 +1,9 @@
+dist
+node_modules
+*.tsbuildinfo
+.n8n-node-cli
+.DS_Store
+*.log
+coverage
+.env
+.env.*

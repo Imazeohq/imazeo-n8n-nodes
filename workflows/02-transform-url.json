@@ -1,0 +1,43 @@
+{
+	"name": "Imazeo — Transform Public Image URL",
+	"nodes": [
+		{
+			"parameters": {},
+			"id": "start-2",
+			"name": "When clicking ‘Execute workflow’",
+			"type": "n8n-nodes-base.manualTrigger",
+			"typeVersion": 1,
+			"position": [0, 0]
+		},
+		{
+			"parameters": {
+				"resource": "transform",
+				"operation": "create",
+				"sourceMode": "url",
+				"imageUrl": "https://picsum.photos/800",
+				"mode": "EPHEMERAL",
+				"width": 400,
+				"height": 400,
+				"fit": "cover",
+				"format": "webp",
+				"quality": 80
+			},
+			"id": "imazeo-transform-1",
+			"name": "Imazeo",
+			"type": "n8n-nodes-imazeo.imazeo",
+			"typeVersion": 1,
+			"position": [280, 0]
+		}
+	],
+	"connections": {
+		"When clicking ‘Execute workflow’": {
+			"main": [[{ "node": "Imazeo", "type": "main", "index": 0 }]]
+		}
+	},
+	"active": false,
+	"settings": { "executionOrder": "v1" },
+	"meta": {
+		"templateCredsSetupCompleted": false,
+		"description": "Resize a public image URL to WebP via POST /v1/projects/:id/transforms. Attach Imazeo API credentials after import."
+	}
+}
