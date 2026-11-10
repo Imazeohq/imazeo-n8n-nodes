@@ -1,5 +1,5 @@
 {
-	"name": "n8n-nodes-imazeo",
+	"name": "@imazeo/n8n-nodes-imazeo",
 	"version": "0.1.0",
 	"description": "n8n community node for Imazeo image transforms, PDF tools, QR codes, and barcodes",
 	"license": "MIT",
@@ -13,6 +13,9 @@
 		"qr",
 		"barcode"
 	],
+	"publishConfig": {
+		"access": "public"
+	},
 	"author": {
 		"name": "Imazeo",
 		"email": "contact@imazeo.com"

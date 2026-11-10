@@ -1,5 +1,5 @@
 {
-	"node": "n8n-nodes-imazeo",
+	"node": "@imazeo/n8n-nodes-imazeo",
 	"nodeVersion": "1.0",
 	"codexVersion": "1.0",
 	"categories": ["Development", "Marketing & Content"],

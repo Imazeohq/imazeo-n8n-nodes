@@ -24,7 +24,7 @@
 			},
 			"id": "imazeo-transform-1",
 			"name": "Imazeo",
-			"type": "n8n-nodes-imazeo.imazeo",
+			"type": "@imazeo/n8n-nodes-imazeo.imazeo",
 			"typeVersion": 1,
 			"position": [280, 0]
 		}

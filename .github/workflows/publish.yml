@@ -1,4 +1,4 @@
-# Publishes n8n-nodes-imazeo to npm with provenance (required for n8n verification).
+# Publishes @imazeo/n8n-nodes-imazeo to npm with provenance (required for n8n verification).
 #
 # Pattern matches other Imazeo SDK publish workflows:
 # - tag push (v*) and optional workflow_dispatch

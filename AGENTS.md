@@ -1,9 +1,9 @@
-# n8n-nodes-imazeo
+# @imazeo/n8n-nodes-imazeo
 
 Standalone n8n community node for the public Imazeo API.
 
 - **Git remote:** `https://github.com/Imazeohq/imazeo-n8n-nodes.git`
-- **npm name:** `n8n-nodes-imazeo` (must keep the `n8n-nodes-` prefix)
+- **npm name:** `@imazeo/n8n-nodes-imazeo` (scoped under the `imazeo` npm org)
 - **Icons:** copy from `brand/assets/favicon/imazeo-icon-master.png` into `nodes/Imazeo/` and `credentials/` (do not invent marks)
 
 ## Contract source of truth

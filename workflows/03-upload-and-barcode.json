@@ -35,7 +35,7 @@
 			},
 			"id": "imazeo-upload-1",
 			"name": "Upload Image",
-			"type": "n8n-nodes-imazeo.imazeo",
+			"type": "@imazeo/n8n-nodes-imazeo.imazeo",
 			"typeVersion": 1,
 			"position": [480, -80]
 		},
@@ -54,7 +54,7 @@
 			},
 			"id": "imazeo-barcode-1",
 			"name": "Barcode from Image ID",
-			"type": "n8n-nodes-imazeo.imazeo",
+			"type": "@imazeo/n8n-nodes-imazeo.imazeo",
 			"typeVersion": 1,
 			"position": [720, -80]
 		}

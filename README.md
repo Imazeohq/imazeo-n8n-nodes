@@ -1,4 +1,4 @@
-# n8n-nodes-imazeo
+# @imazeo/n8n-nodes-imazeo
 
 Community node for [Imazeo](https://imazeo.com) — image uploads and transforms, PDF tools, QR codes, and barcodes against the public Imazeo API (`https://api.imazeo.com`).
 
@@ -9,7 +9,7 @@ Built with the official [`@n8n/node-cli`](https://docs.n8n.io/integrations/creat
 ### Community nodes (self-hosted)
 
 1. Settings → Community Nodes → Install
-2. Enter `n8n-nodes-imazeo`
+2. Enter `@imazeo/n8n-nodes-imazeo`
 3. Restart n8n if prompted
 
 ### Manual / local development
@@ -73,7 +73,7 @@ API error envelopes are mapped to n8n `NodeApiError` with code, request ID, and 
 ## Repository
 
 - GitHub: [Imazeohq/imazeo-n8n-nodes](https://github.com/Imazeohq/imazeo-n8n-nodes)
-- npm package name (required community-node prefix): `n8n-nodes-imazeo`
+- npm package: [`@imazeo/n8n-nodes-imazeo`](https://www.npmjs.com/package/@imazeo/n8n-nodes-imazeo) (scoped under the `imazeo` npm org)
 - Node / credential icons: official Imazeo mark from the shared brand favicon master (`brand/assets/favicon/imazeo-icon-master.png`)
 
 ## Publishing / verification
@@ -83,11 +83,10 @@ Same idea as Java/NuGet SDK repos: **tag `v*` (or Actions → Publish → Run wo
 ### One-time setup
 
 1. Confirm GitHub repo is **public**: [Imazeohq/imazeo-n8n-nodes](https://github.com/Imazeohq/imazeo-n8n-nodes)
-2. Create / claim the npm package name `n8n-nodes-imazeo` under your npm user or org (first publish creates it)
-3. Prefer **Trusted Publisher (OIDC)** — no long-lived token:
-   - npmjs.com → package (or org) → **Trusted Publishers** → **GitHub Actions**
+2. First publish once under the **`imazeo`** npm org (`npm publish --access public`) so the package page exists
+3. On that package → **Settings** → **Trusted Publisher** → **GitHub Actions**:
    - Owner: `Imazeohq` · Repo: `imazeo-n8n-nodes` · Workflow: `publish.yml`
-4. Fallback: create an npm Granular Access Token with publish rights, add GitHub secret `NPM_TOKEN`
+4. Fallback only if needed: npm Granular Access Token + GitHub secret `NPM_TOKEN`
 5. Ensure local git can create GitHub releases (`gh auth login` or a `GITHUB_TOKEN`/`GH_TOKEN` for `release-it`)
 
 ### Each release
@@ -106,8 +105,8 @@ The **Publish** workflow then runs lint + build + `npm publish` with **provenanc
 
 ### After npm is live
 
-1. Confirm [npmjs.com/package/n8n-nodes-imazeo](https://www.npmjs.com/package/n8n-nodes-imazeo) shows Provenance
-2. `npx @n8n/scan-community-package n8n-nodes-imazeo`
+1. Confirm [npmjs.com/package/@imazeo/n8n-nodes-imazeo](https://www.npmjs.com/package/@imazeo/n8n-nodes-imazeo) shows Provenance
+2. `npx @n8n/scan-community-package @imazeo/n8n-nodes-imazeo`
 3. Submit via the [n8n Creator Portal](https://docs.n8n.io/integrations/creating-nodes/build/reference/verification-guidelines/)
 
 Do not release until sample workflows have been exercised against a real project API key.
