@@ -61,15 +61,13 @@ export function extensionForContentType(contentType: string): string {
 		'image/gif': 'gif',
 		'image/svg+xml': 'svg',
 		'application/pdf': 'pdf',
+		'text/csv': 'csv',
 		'application/octet-stream': 'bin',
 	};
 	return map[type] ?? 'bin';
 }
 
-export function pickHeader(
-	headers: IDataObject | undefined,
-	name: string,
-): string | undefined {
+export function pickHeader(headers: IDataObject | undefined, name: string): string | undefined {
 	if (!headers) return undefined;
 	const target = name.toLowerCase();
 	for (const [key, value] of Object.entries(headers)) {
@@ -133,9 +131,7 @@ export function buildTransformBody(params: {
 	assign('position', params.position);
 
 	const body: IDataObject =
-		params.sourceMode === 'imageId'
-			? { imageId: params.imageId }
-			: { url: params.url };
+		params.sourceMode === 'imageId' ? { imageId: params.imageId } : { url: params.url };
 
 	if (params.mode) body.mode = params.mode;
 	if (params.maxOutputBytes) body.maxOutputBytes = params.maxOutputBytes;
@@ -162,7 +158,7 @@ export async function imazeoApiRequest(
 }> {
 	const headers: IDataObject = {
 		Accept: options.encoding === 'arraybuffer' ? '*/*' : 'application/json',
-		'User-Agent': 'Imazeo-n8n/0.1.0',
+		'User-Agent': 'Imazeo-n8n/1.0.0',
 		...(options.headers ?? {}),
 	};
 
@@ -175,6 +171,7 @@ export async function imazeoApiRequest(
 		json: options.json ?? options.encoding !== 'arraybuffer',
 		encoding: options.encoding,
 		returnFullResponse: true,
+		disableFollowRedirect: true,
 		timeout: options.timeout,
 	};
 
@@ -243,7 +240,7 @@ function mapImazeoError(
 	const message =
 		typeof apiError.message === 'string'
 			? apiError.message
-			: err.message ?? 'Imazeo request failed';
+			: (err.message ?? 'Imazeo request failed');
 	const requestId =
 		((body?.meta as IDataObject | undefined)?.requestId as string | undefined) ??
 		pickHeader(err.response?.headers, 'x-request-id');
@@ -264,7 +261,7 @@ function mapImazeoError(
 
 	return new NodeApiError(this.getNode(), error as JsonObject, {
 		message,
-		description: descriptionParts.join(' · ') || undefined,
+		description: descriptionParts.join(' Â· ') || undefined,
 		httpCode: status !== undefined ? String(status) : undefined,
 	});
 }

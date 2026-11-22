@@ -1,3 +1,4 @@
+import { featureProperties, executeFeature, requestHeaders, parseObject } from './Features';
 import type {
 	IDataObject,
 	IExecuteFunctions,
@@ -28,7 +29,7 @@ export class Imazeo implements INodeType {
 		group: ['transform'],
 		version: [1],
 		subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
-		description: 'Image transforms, PDF tools, QR codes, and barcodes via the Imazeo API',
+		description: 'Images, documents, websites, QR links, codes, and private outputs via Imazeo',
 		defaults: {
 			name: 'Imazeo',
 		},
@@ -42,6 +43,7 @@ export class Imazeo implements INodeType {
 			},
 		],
 		properties: [
+			...featureProperties,
 			{
 				displayName: 'Resource',
 				name: 'resource',
@@ -49,15 +51,21 @@ export class Imazeo implements INodeType {
 				noDataExpression: true,
 				options: [
 					{ name: 'Barcode', value: 'barcode' },
+					{ name: 'Conversion', value: 'conversion' },
+					{ name: 'Credit', value: 'credit' },
+					{ name: 'Dynamic QR', value: 'dynamicCode' },
 					{ name: 'Image', value: 'image' },
+					{ name: 'Output', value: 'output' },
 					{ name: 'PDF', value: 'pdf' },
+					{ name: 'Processing Operation', value: 'processing' },
 					{ name: 'QR Code', value: 'qr' },
+					{ name: 'Saved Artifact', value: 'artifact' },
 					{ name: 'Transform', value: 'transform' },
 				],
 				default: 'image',
 			},
 
-			// ── Image ──────────────────────────────────────────────────────────
+			// â”€â”€ Image â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 			{
 				displayName: 'Operation',
 				name: 'operation',
@@ -99,7 +107,7 @@ export class Imazeo implements INodeType {
 				default: 'upload',
 			},
 
-			// ── Transform ──────────────────────────────────────────────────────
+			// â”€â”€ Transform â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 			{
 				displayName: 'Operation',
 				name: 'operation',
@@ -141,7 +149,7 @@ export class Imazeo implements INodeType {
 				default: 'create',
 			},
 
-			// ── QR ─────────────────────────────────────────────────────────────
+			// â”€â”€ QR â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 			{
 				displayName: 'Operation',
 				name: 'operation',
@@ -159,7 +167,7 @@ export class Imazeo implements INodeType {
 				default: 'generate',
 			},
 
-			// ── Barcode ────────────────────────────────────────────────────────
+			// â”€â”€ Barcode â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 			{
 				displayName: 'Operation',
 				name: 'operation',
@@ -177,7 +185,7 @@ export class Imazeo implements INodeType {
 				default: 'generate',
 			},
 
-			// ── PDF ────────────────────────────────────────────────────────────
+			// â”€â”€ PDF â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 			{
 				displayName: 'Operation',
 				name: 'operation',
@@ -355,7 +363,8 @@ export class Imazeo implements INodeType {
 				displayOptions: {
 					show: { resource: ['transform'], operation: ['create'] },
 				},
-				description: 'CACHE retains temporarily, PERSIST stores longer, EPHEMERAL returns bytes only',
+				description:
+					'CACHE retains temporarily, PERSIST stores longer, EPHEMERAL returns bytes only',
 			},
 			{
 				displayName: 'Width',
@@ -543,7 +552,8 @@ export class Imazeo implements INodeType {
 				displayOptions: {
 					show: { resource: ['qr', 'barcode'], operation: ['generate'] },
 				},
-				description: 'Text to encode. For barcodes, keep identifiers as strings to preserve leading zeros.',
+				description:
+					'Text to encode. For barcodes, keep identifiers as strings to preserve leading zeros.',
 				placeholder: 'e.g. https://imazeo.com',
 			},
 			{
@@ -653,7 +663,7 @@ export class Imazeo implements INodeType {
 						name: 'size',
 						type: 'number',
 						default: 256,
-						description: 'QR edge size in pixels (128–1024)',
+						description: 'QR edge size in pixels (128â€“1024)',
 					},
 				],
 			},
@@ -668,8 +678,7 @@ export class Imazeo implements INodeType {
 				displayOptions: {
 					show: { resource: ['pdf'], operation: ['merge'] },
 				},
-				description:
-					'Comma-separated binary property names to merge in order (e.g. data,data1)',
+				description: 'Comma-separated binary property names to merge in order (e.g. data,data1)',
 			},
 			{
 				displayName: 'Pages',
@@ -803,6 +812,14 @@ export class Imazeo implements INodeType {
 						projectId,
 						returnData,
 					});
+				} else if (
+					['conversion', 'credit', 'dynamicCode', 'output', 'processing', 'artifact'].includes(
+						resource,
+					)
+				) {
+					returnData.push(
+						...(await executeFeature.call(this, resource, operation, i, baseUrl, projectId)),
+					);
 				} else {
 					throw new NodeOperationError(this.getNode(), `Unknown resource: ${resource}`, {
 						itemIndex: i,
@@ -913,11 +930,7 @@ async function executeImage(
 		return;
 	}
 	if (operation === 'delete') {
-		await imazeoApiRequest.call(
-			this,
-			'DELETE',
-			projectPath(baseUrl, projectId, 'images', imageId),
-		);
+		await imazeoApiRequest.call(this, 'DELETE', projectPath(baseUrl, projectId, 'images', imageId));
 		returnData.push({ json: { deleted: true, id: imageId }, pairedItem: { item: i } });
 		return;
 	}
@@ -933,8 +946,7 @@ async function executeImage(
 			projectPath(baseUrl, projectId, 'images', imageId, 'content'),
 			{ encoding: 'arraybuffer', json: false, timeout: 60_000 },
 		);
-		const contentType =
-			pickHeader(response.headers, 'content-type') ?? 'application/octet-stream';
+		const contentType = pickHeader(response.headers, 'content-type') ?? 'application/octet-stream';
 		const fileName = `image-${imageId}.${extensionForContentType(contentType)}`;
 		returnData.push(
 			await prepareBinaryItem.call(
@@ -998,15 +1010,14 @@ async function executeTransform(
 			background: options.background as string | undefined,
 			position: options.position as string | undefined,
 		});
-		const outputBinaryPropertyName =
-			(options.outputBinaryPropertyName as string) || 'data';
+		const outputBinaryPropertyName = (options.outputBinaryPropertyName as string) || 'data';
 		const response = await imazeoApiRequest.call(
 			this,
 			'POST',
 			projectPath(baseUrl, projectId, 'transforms'),
 			{
 				body,
-				headers: { 'Content-Type': 'application/json' },
+				headers: { 'Content-Type': 'application/json', ...requestHeaders.call(this, i) },
 				encoding: 'arraybuffer',
 				json: false,
 				timeout: 60_000,
@@ -1025,6 +1036,7 @@ async function executeTransform(
 				contentType,
 				{
 					transformationId,
+					headers: response.headers,
 					cache,
 					requestId: pickHeader(response.headers, 'x-request-id'),
 				},
@@ -1105,8 +1117,7 @@ async function executeTransform(
 			});
 			return;
 		}
-		const contentType =
-			pickHeader(response.headers, 'content-type') ?? 'application/octet-stream';
+		const contentType = pickHeader(response.headers, 'content-type') ?? 'application/octet-stream';
 		returnData.push(
 			await prepareBinaryItem.call(
 				this,
@@ -1150,13 +1161,17 @@ async function executeQr(
 	if (options.foreground) body.foreground = options.foreground;
 	if (options.background) body.background = options.background;
 
+	body.transparent = this.getNodeParameter('transparent', i, false) as boolean;
+	const design = parseObject(this.getNodeParameter('codeDesign', i, '{}'));
+	if (Object.keys(design).length) body.design = design;
+
 	const response = await imazeoApiRequest.call(
 		this,
 		'POST',
 		projectPath(baseUrl, projectId, 'tools', 'qr'),
 		{
 			body,
-			headers: { 'Content-Type': 'application/json' },
+			headers: { 'Content-Type': 'application/json', ...requestHeaders.call(this, i) },
 			encoding: 'arraybuffer',
 			json: false,
 			timeout: 30_000,
@@ -1171,7 +1186,7 @@ async function executeQr(
 			response.body as ArrayBuffer,
 			`qr.${extensionForContentType(contentType)}`,
 			contentType,
-			{ requestId: pickHeader(response.headers, 'x-request-id') },
+			{ requestId: pickHeader(response.headers, 'x-request-id'), headers: response.headers },
 			outputBinaryPropertyName,
 		),
 	);
@@ -1199,13 +1214,17 @@ async function executeBarcode(
 	if (options.foreground) body.foreground = options.foreground;
 	if (options.background) body.background = options.background;
 
+	body.transparent = this.getNodeParameter('transparent', i, false) as boolean;
+	const design = parseObject(this.getNodeParameter('codeDesign', i, '{}'));
+	if (Object.keys(design).length) body.design = design;
+
 	const response = await imazeoApiRequest.call(
 		this,
 		'POST',
 		projectPath(baseUrl, projectId, 'tools', 'barcode'),
 		{
 			body,
-			headers: { 'Content-Type': 'application/json' },
+			headers: { 'Content-Type': 'application/json', ...requestHeaders.call(this, i) },
 			encoding: 'arraybuffer',
 			json: false,
 			timeout: 30_000,
@@ -1220,7 +1239,7 @@ async function executeBarcode(
 			response.body as ArrayBuffer,
 			`barcode.${extensionForContentType(contentType)}`,
 			contentType,
-			{ requestId: pickHeader(response.headers, 'x-request-id') },
+			{ requestId: pickHeader(response.headers, 'x-request-id'), headers: response.headers },
 			outputBinaryPropertyName,
 		),
 	);
@@ -1262,7 +1281,13 @@ async function executePdf(
 			this,
 			'POST',
 			projectPath(baseUrl, projectId, 'tools', 'pdf', 'merge'),
-			{ body: form, encoding: 'arraybuffer', json: false, timeout: 120_000 },
+			{
+				headers: requestHeaders.call(this, i),
+				body: form,
+				encoding: 'arraybuffer',
+				json: false,
+				timeout: 120_000,
+			},
 		);
 		const outputBinaryPropertyName = this.getNodeParameter(
 			'outputBinaryPropertyName',
@@ -1297,7 +1322,7 @@ async function executePdf(
 			this,
 			'POST',
 			projectPath(baseUrl, projectId, 'tools', 'pdf', 'info'),
-			{ body: form, json: true, timeout: 120_000 },
+			{ headers: requestHeaders.call(this, i), body: form, json: true, timeout: 120_000 },
 		);
 		returnData.push({
 			json: ((response.body as IDataObject).data as IDataObject) ?? {},
@@ -1317,10 +1342,16 @@ async function executePdf(
 			this,
 			'POST',
 			projectPath(baseUrl, projectId, 'tools', 'pdf', 'extract'),
-			{ body: form, qs, encoding: 'arraybuffer', json: false, timeout: 120_000 },
+			{
+				headers: requestHeaders.call(this, i),
+				body: form,
+				qs,
+				encoding: 'arraybuffer',
+				json: false,
+				timeout: 120_000,
+			},
 		);
-		const outputBinaryPropertyName =
-			(options.outputBinaryPropertyName as string) || 'data';
+		const outputBinaryPropertyName = (options.outputBinaryPropertyName as string) || 'data';
 		returnData.push(
 			await prepareBinaryItem.call(
 				this,
@@ -1344,11 +1375,17 @@ async function executePdf(
 			this,
 			'POST',
 			projectPath(baseUrl, projectId, 'tools', 'pdf', 'render'),
-			{ body: form, qs, encoding: 'arraybuffer', json: false, timeout: 120_000 },
+			{
+				headers: requestHeaders.call(this, i),
+				body: form,
+				qs,
+				encoding: 'arraybuffer',
+				json: false,
+				timeout: 120_000,
+			},
 		);
 		const contentType = pickHeader(response.headers, 'content-type') ?? '';
-		const outputBinaryPropertyName =
-			(options.outputBinaryPropertyName as string) || 'data';
+		const outputBinaryPropertyName = (options.outputBinaryPropertyName as string) || 'data';
 
 		// Multi-page renders may return JSON with base64 pages.
 		if (contentType.includes('application/json')) {
@@ -1389,7 +1426,7 @@ async function executePdf(
 				response.body as ArrayBuffer,
 				`page.${extensionForContentType(contentType || 'image/png')}`,
 				contentType || 'image/png',
-				{ requestId: pickHeader(response.headers, 'x-request-id') },
+				{ requestId: pickHeader(response.headers, 'x-request-id'), headers: response.headers },
 				outputBinaryPropertyName,
 			),
 		);
